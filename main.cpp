@@ -2,6 +2,7 @@
 #include <sstream>
 #include <map>
 #include <sys/stat.h>
+#include <boost/filesystem.hpp>
 #include "command.hpp"
 #include "subprocess.hpp"
 
@@ -25,18 +26,6 @@ void process_init_cmd(const po::variables_map& options) {
     std::cout << "gc.pruneExpire has already been set to `never`" << std::endl;
 }
 
-bool is_directory(const std::string& path) {
-    struct stat s;
-    if (stat(path.c_str(), &s) == 0) {
-        if (s.st_mode & S_IFDIR) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    return false;
-}
-
 void process_write_cmd(const po::variables_map& options) {
     if (!options.count("subargs")) {
         return;
@@ -49,10 +38,12 @@ void process_write_cmd(const po::variables_map& options) {
     subprocess::run_cmd("git reset --mixed");
 
     int ret = 0;
-    if (subargs.size() == 1 && !is_directory(subargs_str) && !options.count("tree")) {
+    if (subargs.size() == 1 && !boost::filesystem::is_directory(subargs_str)
+            && !options.count("tree")) {
+        std::cout << "hash object" << std::endl;
         ret = subprocess::run_cmd("git hash-object " + subargs_str);
     } else {
-        ret = subprocess::run_cmd("git update-index --add " + subargs_str);
+        ret = subprocess::run_cmd("git add " + subargs_str);
         if (ret != 0) {
             return;
         }
