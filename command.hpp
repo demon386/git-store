@@ -45,7 +45,7 @@ po::variables_map parse_args(int argc, char* argv[]) {
 
     commands.add_options()
         ("help,h", "Help screen")
-        ("command", po::value<std::string>(), "subcommand");
+        ("command", po::value<std::string>(), "subcommand")
         ("subargs", po::value<std::vector<std::string>>(),
          "Positional arguments for subcommands");
 
