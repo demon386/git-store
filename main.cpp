@@ -40,9 +40,10 @@ void process_write_cmd(const po::variables_map& options) {
     int ret = 0;
     if (subargs.size() == 1 && !boost::filesystem::is_directory(subargs_str)
             && !options.count("tree")) {
-        std::cout << "hash object" << std::endl;
+        std::cout << "hashing blob object" << std::endl;
         ret = subprocess::run_cmd("git hash-object " + subargs_str);
     } else {
+        std::cout << "hashing tree" << std::endl;
         ret = subprocess::run_cmd("git add " + subargs_str);
         if (ret != 0) {
             return;
@@ -58,6 +59,25 @@ void process_write_cmd(const po::variables_map& options) {
     }
 }
 
+void process_read_cmd(const po::variables_map& options) {
+    if (!options.count("subargs")) {
+        return;
+    }
+    auto subargs = options["subargs"].as<std::vector<std::string>>();
+    if (subargs.size() != 1) {
+        std::cout << "should given exactly one SHA-1" << std::endl;
+    }
+    subprocess::run_cmd("git reset --mixed");
+    int ret = subprocess::run_cmd("git read-tree " + subargs.at(0));
+    if (ret == 0) {
+        subprocess::run_cmd("git checkout-index -a");
+        subprocess::run_cmd("git reset --mixed");
+    } else {
+        std::cerr << "Trying to find blob object with this SHA-1" << std::endl;
+        subprocess::run_cmd("git show " + subargs.at(0));
+    }
+}
+
 using ProcessFuncT = void (*) (const po::variables_map& options);
 
 int main(int argc, char *argv[])
@@ -70,12 +90,14 @@ int main(int argc, char *argv[])
             ("tree,t", "give tree's hash even given just one file")
             ("delete,d", "delete added files");
             });
+    command::add_subcommand("read", "read content into current dir.");
 
     const po::variables_map options = command::parse_args(argc, argv);
 
     std::map<std::string, ProcessFuncT> process_func_map = {
         {"init", process_init_cmd},
-        {"write", process_write_cmd}
+        {"write", process_write_cmd},
+        {"read", process_read_cmd}
     };
 
     const auto& cmd = options["command"].as<std::string>();
