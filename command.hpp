@@ -41,7 +41,7 @@ void add_subcommand(CommandNameT command_name,
 po::variables_map parse_args(int argc, char* argv[]) {
     // Inspired by
     // http://www.hitmaroc.net/553491-4141-how-implement-subcommands-using-boost-program-options.html
-    po::options_description commands("Subcommands");
+    po::options_description commands("Subcommands: init,read,write");
 
     commands.add_options()
         ("help,h", "Help screen")
@@ -63,10 +63,6 @@ po::variables_map parse_args(int argc, char* argv[]) {
 
     po::store(parsed, vm);
 
-    if (vm.count("help")) {
-        std::cout << commands << std::endl;
-        std::exit(0);
-    }
     // @todo should exists a better way to judge whether the first positional
     // cmd is given.
     try {
