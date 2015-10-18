@@ -25,8 +25,8 @@ a git repo and never commit things into it. Because when we write tree into git,
       - write a content into “.git”, could be a file or a directory, or multiple
         files & directories.
       - options:
-      - --tree,-t: Write as a tree, even only a single file is given.
-      - --delete,-d: Delete the given files & directories after writing.
+          - --tree,-t: Write as a tree, even only a single file is given.
+          - --delete,-d: Delete the given files & directories after writing.
   - read
       - With a SHA-1 hash of a tree, it will read the tree into current
         directory.
