@@ -41,7 +41,7 @@ void process_write_cmd(const po::variables_map& options) {
     if (subargs.size() == 1 && !boost::filesystem::is_directory(subargs_str)
             && !options.count("tree")) {
         std::cout << "hashing blob object" << std::endl;
-        ret = subprocess::run_cmd("git hash-object " + subargs_str);
+        ret = subprocess::run_cmd("git hash-object -w " + subargs_str);
     } else {
         std::cout << "hashing tree" << std::endl;
         ret = subprocess::run_cmd("git add " + subargs_str);
