@@ -1,7 +1,5 @@
 #include <iostream>
-#include <sstream>
 #include <map>
-#include <sys/stat.h>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include "command.hpp"
