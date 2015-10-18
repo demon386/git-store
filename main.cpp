@@ -3,10 +3,12 @@
 #include <map>
 #include <sys/stat.h>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include "command.hpp"
 #include "subprocess.hpp"
 
 namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 
 void check_git_cmd_available() {
     if (subprocess::run_cmd("which git", false) != 0) {
@@ -15,11 +17,6 @@ void check_git_cmd_available() {
     }
 }
 
-std::string join_str_vector(const std::vector<std::string> v, const char* delim) {
-    std::ostringstream joined;
-    std::copy(v.begin(), v.end(), std::ostream_iterator<std::string>(joined, delim));
-    return joined.str();
-}
 
 void process_init_cmd(const po::variables_map& options) {
     subprocess::run_cmd("git init && git config gc.pruneExpire never");
@@ -34,11 +31,14 @@ void process_write_cmd(const po::variables_map& options) {
     if (subargs.size() == 0) {
         return;
     }
-    auto subargs_str = join_str_vector(subargs, " ");
-    subprocess::run_cmd("git reset --mixed");
-
+    auto subargs_str = boost::algorithm::join(subargs, " ");
     int ret = 0;
-    if (subargs.size() == 1 && !boost::filesystem::is_directory(subargs_str)
+    ret = subprocess::run_cmd("git reset --mixed");
+    if (ret != 0) {
+        return;
+    }
+
+    if (subargs.size() == 1 && !fs::is_directory(subargs_str)
             && !options.count("tree")) {
         std::cout << "hashing blob object" << std::endl;
         ret = subprocess::run_cmd("git hash-object -w " + subargs_str);
